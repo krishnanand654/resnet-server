@@ -16,6 +16,26 @@ app.post('/send', (req, res) => {
         return res.status(400).send('No message or username provided');
     }
 
+    // Check if messages file exists
+    fs.access(messagesFile, fs.constants.F_OK, (err) => {
+        if (err) {
+            // If file doesn't exist, create it
+            fs.writeFile(messagesFile, JSON.stringify({ messages: [] }), 'utf8', (err) => {
+                if (err) {
+                    return res.status(500).send('Error creating messages file');
+                }
+                // File created successfully, proceed to add message
+                addMessageToLogFile(message, username, res);
+            });
+        } else {
+            // File exists, proceed to add message
+            addMessageToLogFile(message, username, res);
+        }
+    });
+});
+
+
+function addMessageToLogFile(message, username, res) {
     fs.readFile(messagesFile, 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('Error parsing existing messages');
@@ -41,8 +61,7 @@ app.post('/send', (req, res) => {
             res.status(200).send('Message Sent');
         });
     });
-});
-
+}
 
 // Endpoint to handle clearing messages
 app.post('/clear', (req, res) => {
