@@ -10,9 +10,9 @@ app.use(bodyParser.json());
 
 // Endpoint to handle sending messages
 app.post('/send', (req, res) => {
-    const { message, username } = req.query; // Using req.query to get parameters from URL
+    const { message, username, receiver, phoneNumber } = req.query; // Using req.query to get parameters from URL
 
-    if (!message || !username) {
+    if (!message || !username || !receiver || !phoneNumber) {
         return res.status(400).send('No message or username provided');
     }
 
@@ -25,17 +25,17 @@ app.post('/send', (req, res) => {
                     return res.status(500).send('Error creating messages file');
                 }
                 // File created successfully, proceed to add message
-                addMessageToLogFile(message, username, res);
+                addMessageToLogFile(message, username, receiver, phoneNumber, res);
             });
         } else {
             // File exists, proceed to add message
-            addMessageToLogFile(message, username, res);
+            addMessageToLogFile(message, username, receiver, phoneNumber, res);
         }
     });
 });
 
 
-function addMessageToLogFile(message, username, res) {
+function addMessageToLogFile(message, username, receiver, phoneNumber, res) {
     fs.readFile(messagesFile, 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('Error parsing existing messages');
@@ -49,7 +49,9 @@ function addMessageToLogFile(message, username, res) {
         const newMessage = {
             id: messages.length + 1,
             username,
-            message
+            message,
+            receiver,
+            phoneNumber
         };
 
         messages.push(newMessage);
