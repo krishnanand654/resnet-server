@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 
 // Endpoint to handle sending messages
 app.post('/send', (req, res) => {
-    const { message, username } = req.body;
+    const { message, username } = req.query; // Using req.query to get parameters from URL
 
     if (!message || !username) {
         return res.status(400).send('No message or username provided');
@@ -42,6 +42,7 @@ app.post('/send', (req, res) => {
         });
     });
 });
+
 
 // Endpoint to handle clearing messages
 app.post('/clear', (req, res) => {
